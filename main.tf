@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-central-1"
+  region = "eu-west-1"
 }
 
 variable vpc_cidr_block {}
@@ -127,33 +127,5 @@ resource "aws_instance" "myapp-server" {
     Name = "${var.env_prefix}-server"
   }
 
-  user_data = <<EOF
-                 #!/bin/bash
-                 apt-get update && apt-get install -y docker-ce
-                 systemctl start docker
-                 usermod -aG docker ec2-user
-                 docker run -p 8080:8080 nginx
-              EOF
 }
 
-resource "aws_instance" "myapp-server-two" {
-  ami                         = data.aws_ami.amazon-linux-image.id
-  instance_type               = var.instance_type
-  key_name                    = "myapp-key"
-  associate_public_ip_address = true
-  subnet_id                   = aws_subnet.myapp-subnet-1.id
-  vpc_security_group_ids      = [aws_security_group.myapp-sg.id]
-  availability_zone			      = var.avail_zone
-
-  tags = {
-    Name = "${var.env_prefix}-server-two"
-  }
-
-  user_data = <<EOF
-                 #!/bin/bash
-                 apt-get update && apt-get install -y docker-ce
-                 systemctl start docker
-                 usermod -aG docker ec2-user
-                 docker run -p 8080:8080 nginx
-              EOF
-}
